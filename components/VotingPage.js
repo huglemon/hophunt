@@ -7,12 +7,14 @@ import { recordVisit, recordVote, getHourlyStats, shouldShowWarning, shouldWait,
 import { StatsLoader, PageLoader } from '@/components/LoadingSpinner';
 
 export default function VotingPage({ initialStats = null }) {
-	const [stats, setStats] = useState(initialStats || {
-		visits: 0,
-		votes: 0,
-		totalVisits: 0,
-		totalVotes: 0,
-	});
+	const [stats, setStats] = useState(
+		initialStats || {
+			visits: 0,
+			votes: 0,
+			totalVisits: 0,
+			totalVotes: 0,
+		}
+	);
 	const [showWarning, setShowWarning] = useState(false);
 	const [shouldWaitTime, setShouldWaitTime] = useState(false);
 	const [lastVoteTime, setLastVoteTime] = useState(initialStats?.lastVoteTime || null);
@@ -28,19 +30,14 @@ export default function VotingPage({ initialStats = null }) {
 			try {
 				// 记录访问（不等待结果）
 				recordVisit().catch(console.error);
-				
+
 				// 如果没有初始数据，则获取完整数据
 				if (!initialStats) {
-					const [
-						currentStats,
-						warning,
-						waitTime,
-						lastVote
-					] = await Promise.allSettled([
+					const [currentStats, warning, waitTime, lastVote] = await Promise.allSettled([
 						getHourlyStats(),
 						shouldShowWarning(),
 						shouldWait(),
-						getLastVoteTime()
+						getLastVoteTime(),
 					]);
 
 					if (currentStats.status === 'fulfilled') {
@@ -60,10 +57,7 @@ export default function VotingPage({ initialStats = null }) {
 					}
 				} else {
 					// 有初始数据时，只检查警告和等待状态
-					const [warning, waitTime] = await Promise.allSettled([
-						shouldShowWarning(),
-						shouldWait()
-					]);
+					const [warning, waitTime] = await Promise.allSettled([shouldShowWarning(), shouldWait()]);
 
 					if (warning.status === 'fulfilled') {
 						setShowWarning(warning.value);
@@ -73,7 +67,6 @@ export default function VotingPage({ initialStats = null }) {
 						setShouldWaitTime(waitTime.value);
 					}
 				}
-
 			} catch (error) {
 				console.error('初始化客户端数据失败:', error);
 			} finally {
@@ -181,9 +174,14 @@ export default function VotingPage({ initialStats = null }) {
 							我要投票
 							<ExternalLink className='w-4 h-4' />
 						</button>
-						<button className='border border-gray-300 text-gray-700 px-6 sm:px-8 py-3 text-sm font-medium hover:bg-gray-50 transition-colors w-full sm:w-auto'>
-							随便看看
-						</button>
+						<a
+							href={config.product.productUrl}
+							target='_blank'
+							rel='noreferrer noopener'
+							className='border border-gray-300 text-gray-700 px-6 sm:px-8 py-3 text-sm font-medium hover:bg-gray-50 transition-colors w-full sm:w-auto'
+						>
+							看看产品
+						</a>
 					</div>
 
 					{/* 警告信息 */}
@@ -201,27 +199,19 @@ export default function VotingPage({ initialStats = null }) {
 						<div className='bg-gray-50 px-6 sm:px-8 py-6 sm:py-8 mx-4 sm:mx-0'>
 							<div className='grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 text-center'>
 								<div>
-									<div className='text-xl sm:text-2xl font-light text-gray-900 mb-1'>
-										{stats.visits}
-									</div>
+									<div className='text-xl sm:text-2xl font-light text-gray-900 mb-1'>{stats.visits}</div>
 									<div className='text-xs text-gray-500'>本小时访问</div>
 								</div>
 								<div>
-									<div className='text-xl sm:text-2xl font-light text-gray-900 mb-1'>
-										{stats.votes}
-									</div>
+									<div className='text-xl sm:text-2xl font-light text-gray-900 mb-1'>{stats.votes}</div>
 									<div className='text-xs text-gray-500'>本小时投票</div>
 								</div>
 								<div>
-									<div className='text-xl sm:text-2xl font-light text-gray-900 mb-1'>
-										{stats.totalVisits}
-									</div>
+									<div className='text-xl sm:text-2xl font-light text-gray-900 mb-1'>{stats.totalVisits}</div>
 									<div className='text-xs text-gray-500'>累计访问</div>
 								</div>
 								<div>
-									<div className='text-xl sm:text-2xl font-light text-gray-900 mb-1'>
-										{stats.totalVotes}
-									</div>
+									<div className='text-xl sm:text-2xl font-light text-gray-900 mb-1'>{stats.totalVotes}</div>
 									<div className='text-xs text-gray-500'>累计投票</div>
 								</div>
 							</div>
@@ -235,7 +225,7 @@ export default function VotingPage({ initialStats = null }) {
 
 			{/* 任务清单弹窗 */}
 			{showModal && (
-				<div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50'>
+				<div className='fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50'>
 					<div className='bg-white max-w-md w-full p-6 relative animate-fade-in'>
 						<button
 							onClick={() => setShowModal(false)}
@@ -261,9 +251,7 @@ export default function VotingPage({ initialStats = null }) {
 									>
 										{task.completed ? '✓' : index + 1}
 									</div>
-									<span className={`text-sm ${task.completed ? 'text-green-800' : 'text-gray-700'}`}>
-										{task.text}
-									</span>
+									<span className={`text-sm ${task.completed ? 'text-green-800' : 'text-gray-700'}`}>{task.text}</span>
 								</div>
 							))}
 						</div>
@@ -274,9 +262,7 @@ export default function VotingPage({ initialStats = null }) {
 									onClick={handleFinalVote}
 									disabled={shouldWaitTime}
 									className={`w-full py-3 px-4 text-sm font-medium transition-colors ${
-										shouldWaitTime
-											? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-											: 'bg-black text-white hover:bg-gray-800'
+										shouldWaitTime ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-black text-white hover:bg-gray-800'
 									}`}
 								>
 									{shouldWaitTime ? `请等待 ${getWaitTimeRemaining()} 分钟` : '确认投票'}
