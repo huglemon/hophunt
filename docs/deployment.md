@@ -2,41 +2,48 @@
 
 ## 快速部署到 Vercel
 
-### 1. 一键部署
+### 🚀 一键部署
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/huglemon/hophunt)
 
-**一键部署后的配置步骤：**
+**👆 点击按钮即可快速部署，无需任何技术背景！**
 
-1. **部署完成后，进入项目设置**
-   - 在 Vercel Dashboard 中找到你的项目
-   - 点击 "Settings" 标签
-   - 选择 "Environment Variables"
+**📋 部署后的简单配置：**
 
-2. **配置产品信息**（必需）
-   - 添加以下环境变量来配置你的产品信息：
-   
+1. **打开项目设置**
+   - 在 Vercel 控制台找到你的项目
+   - 点击 "Settings" → "Environment Variables"
+
+2. **配置你的产品信息**（必需）
+
+   **方式一：使用环境变量模板（推荐）**
+   - [下载 env.template](https://raw.githubusercontent.com/huglemon/hophunt/main/env.template)
+   - 编辑文件中的配置信息
+   - 在 Vercel 中点击 "Import .env File" 导入
+
+   **方式二：手动添加**
    ```bash
    NEXT_PUBLIC_PRODUCT_NAME=你的产品名称
    NEXT_PUBLIC_PRODUCT_DESCRIPTION=你的产品描述
    NEXT_PUBLIC_PRODUCTHUNT_URL=https://www.producthunt.com/posts/your-product
-   NEXT_PUBLIC_PRODUCT_URL=https://github.com/huglemon/hothunt
-   NEXT_PUBLIC_HOMEPAGE_TITLE=感谢你来投票
-   NEXT_PUBLIC_HOMEPAGE_SUBTITLE=你的每一票都很珍贵，感谢你愿意为我们的产品投出支持的一票
    ```
 
-3. **配置数据库**（推荐）
-   - 参考下方数据库配置说明创建 KV 数据库
-   - 添加数据库环境变量：
-   
-   ```bash
-   KV_REST_API_URL=your_kv_rest_api_url
-   KV_REST_API_TOKEN=your_kv_rest_api_token
-   ```
+3. **添加数据库**（推荐，实现真正的统计功能）
+   - 在 Vercel 项目中点击 "Storage" 标签
+   - 选择 "Create Database" → "KV (Redis)"
+   - 创建后，**环境变量会自动添加，无需手动配置**
 
 4. **重新部署**
-   - 保存环境变量后，在 "Deployments" 标签中点击 "Redeploy"
+   - 保存配置后，点击 "Deployments" → "Redeploy"
    - 等待部署完成
+
+**🎉 完成！你的投票页面就可以使用了！**
+
+### 🔄 如何获取项目更新
+
+**简单方式：重新部署**
+- 当项目有重要更新时，直接重新点击部署按钮
+- 这会创建一个包含最新功能的新版本
 
 ### 2. 手动部署
 

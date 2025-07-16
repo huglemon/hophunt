@@ -2,6 +2,25 @@
 
 🚀 一个 ProductHunt 投票中间页，帮助创作者更好地管理投票流程，让每一票都有价值。
 
+## 🚀 快速导航
+
+**👤 运营人员（无需技术背景）**
+- [📦 一键部署](#-一键部署推荐) - 点击按钮即可部署
+- [📋 简单配置](#-部署后的简单配置) - 配置产品信息
+- [📄 环境变量模板下载](#-环境变量模板下载) - 下载配置文件
+
+**👨‍💻 技术人员**
+- [🛠️ 本地开发](#-技术栈) - 技术栈和本地开发
+- [🔧 详细配置](#-添加数据库支持可选) - 完整配置说明
+- [🔄 获取更新](#-获取项目更新) - 代码同步方式
+
+**📚 通用文档**
+- [✨ 功能特性](#✨-功能特性) - 了解项目功能
+- [📱 使用说明](#📱-功能说明) - 详细使用指南
+- [🤝 贡献指南](#🤝-贡献指南) - 参与项目开发
+
+---
+
 ## ✨ 功能特性
 
 -   🎯 **智能投票管理** - 记录访问和投票统计，提供投票建议
@@ -109,47 +128,21 @@ HopHunt 支持两种数据存储模式：
 -   实时同步所有用户的投票数据
 -   适合生产环境使用
 
-**配置 Upstash Redis 步骤：**
+**📊 添加数据库支持（可选）**
 
-1. 登录 [Vercel Dashboard](https://vercel.com/dashboard)
-2. 进入你的项目页面
-3. 点击 "Storage" 标签
-4. 选择 "Browse Marketplace" 或直接选择 KV 存储选项
-5. 选择 Upstash Redis (KV) 并创建数据库
-6. 创建数据库后，复制提供的环境变量
-7. 在项目设置的 "Environment Variables" 中添加：
-    - `KV_REST_API_URL`
-    - `KV_REST_API_TOKEN`
+如果你想要真正的跨用户统计功能，可以添加数据库：
 
-> **重要说明：** 项目现在使用 Upstash Redis SDK (`@upstash/redis`) 而不是 `@vercel/kv`。Upstash 会提供完整的环境变量配置，包括 `KV_URL`、`KV_REST_API_URL`、`KV_REST_API_TOKEN` 等。
+1. **在 Vercel 项目中添加数据库**
+   - 进入你的项目设置
+   - 点击 "Storage" 标签
+   - 选择 "Create Database" → "KV (Redis)"
+   - **环境变量会自动添加，无需手动配置**
 
-**本地开发配置：**
+2. **不添加数据库也可以正常使用**
+   - 项目会自动使用浏览器本地存储
+   - 功能完全正常，只是统计数据只对当前用户可见
 
-创建 `.env.local` 文件：
-
-```bash
-KV_REST_API_URL=https://your-redis-instance.upstash.io
-KV_REST_API_TOKEN=your_upstash_redis_token
-```
-
-**安装依赖：**
-
-如果你是从旧版本升级，需要更新依赖：
-
-```bash
-npm uninstall @vercel/kv
-npm install @upstash/redis
-```
-
-**环境变量配置：**
-
-复制 `env.example` 文件为 `.env.local` 并填入你的 Upstash Redis 配置：
-
-```bash
-cp env.example .env.local
-```
-
-然后编辑 `.env.local` 文件，填入从 Upstash 获取的环境变量。
+> **说明：** 项目使用 Upstash Redis 作为数据库，Vercel 会自动配置所有必要的环境变量，你无需手动操作。
 
 ### 5. 运行开发服务器
 
@@ -165,72 +158,101 @@ pnpm dev
 
 ## 📦 部署到 Vercel
 
-### 方法一：一键部署
+### 🚀 一键部署（推荐）
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/huglemon/hophunt)
 
-**⚠️ 部署前必读：**
-- 本项目要求保留 footer 中的版权信息不变
-- 请勿修改 `components/Footer.js` 中的版权声明
-- 违反此要求将违反开源许可证条款
+**👆 点击按钮即可快速部署，无需任何技术背景！**
 
-**一键部署后的配置步骤：**
+**⚠️ 重要提醒：**
+- 请保留页面底部的版权信息不变
+- 这是使用本项目的必要条件
 
-1. **部署完成后，进入项目设置**
+**📋 部署后的简单配置：**
 
-    - 在 Vercel Dashboard 中找到你的项目
-    - 点击 "Settings" 标签
-    - 选择 "Environment Variables"
+1. **打开项目设置**
+   - 在 Vercel 控制台找到你的项目
+   - 点击 "Settings" → "Environment Variables"
 
-2. **配置产品信息**（必需）
+2. **配置你的产品信息**（必需）
+   ```bash
+   NEXT_PUBLIC_PRODUCT_NAME=你的产品名称
+   NEXT_PUBLIC_PRODUCT_DESCRIPTION=你的产品描述
+   NEXT_PUBLIC_PRODUCTHUNT_URL=https://www.producthunt.com/posts/your-product
+   ```
 
-    - 添加以下环境变量来配置你的产品信息：
+3. **添加数据库**（推荐，实现真正的统计功能）
+   - 在 Vercel 项目中点击 "Storage" 标签
+   - 选择 "Create Database" → "KV (Redis)"
+   - 创建后，**环境变量会自动添加，无需手动配置**
 
-    ```bash
-    NEXT_PUBLIC_PRODUCT_NAME=你的产品名称
-    NEXT_PUBLIC_PRODUCT_DESCRIPTION=你的产品描述
-    NEXT_PUBLIC_PRODUCTHUNT_URL=https://www.producthunt.com/posts/your-product
-    NEXT_PUBLIC_PRODUCT_URL=https://github.com/huglemon/hothunt
-    NEXT_PUBLIC_HOMEPAGE_TITLE=感谢你来投票
-    NEXT_PUBLIC_HOMEPAGE_SUBTITLE=你的每一票都很珍贵，感谢你愿意为我们的产品投出支持的一票
-    ```
+4. **重新部署**
+   - 保存配置后，点击 "Deployments" → "Redeploy"
+   - 等待部署完成
 
-3. **配置数据库**（推荐）
+**🎉 完成！你的投票页面就可以使用了！**
 
-    - 在 Vercel 中创建 Upstash Redis 数据库（参考下方数据库配置说明）
-    - 添加数据库环境变量：
+## 📄 环境变量模板下载
 
-    ```bash
-    KV_REST_API_URL=https://your-redis-instance.upstash.io
-    KV_REST_API_TOKEN=your_upstash_redis_token
-    ```
+为了让配置更简单，我们提供了环境变量模板文件：
 
-4. **配置感谢页面**（可选）
+### 🔗 下载链接
 
-    ```bash
-    NEXT_PUBLIC_THANKYOU_TITLE=谢谢你的支持！
-    NEXT_PUBLIC_THANKYOU_MESSAGE=你的每一票都很珍贵！
-    NEXT_PUBLIC_COUPON_CODE=VOTE2024
-    NEXT_PUBLIC_COUPON_DISCOUNT=8折优惠
-    ```
+**[点击下载 env.template](https://raw.githubusercontent.com/huglemon/hophunt/main/env.template)**
 
-5. **重新部署**
-    - 保存环境变量后，在 "Deployments" 标签中点击 "Redeploy"
-    - 等待部署完成
+### 📋 使用方法
 
-### 方法二：手动部署
+1. **下载模板文件**
+   - 点击上方链接下载 `env.template` 文件
+   - 或者右键 → "另存为" 保存到本地
 
-1. Fork 这个项目到你的 GitHub 账户
-2. 在 [Vercel](https://vercel.com) 创建账户
-3. 连接你的 GitHub 仓库
-4. 修改 `lib/config.js` 文件配置产品信息
-5. 配置 Upstash Redis 数据库（推荐）
-6. 部署项目
+2. **编辑配置信息**
+   - 用文本编辑器打开下载的文件
+   - 根据注释提示填写你的产品信息
+   - 只需要填写必需的配置项即可
 
-**⚠️ 部署注意事项：**
-- 请确保保留 `components/Footer.js` 中的版权信息完整
-- 不要修改或删除 footer 中的版权声明和链接
-- 这是许可证的强制要求，必须遵守
+3. **导入到 Vercel**
+   - 在 Vercel 项目设置中点击 "Environment Variables"
+   - 点击右上角的 "Import .env File" 按钮
+   - 选择编辑好的文件进行导入
+
+4. **重新部署**
+   - 导入完成后，点击 "Redeploy" 重新部署
+   - 等待部署完成即可
+
+### ⚡ 优势
+
+- **一次配置，批量导入**：不用逐个添加环境变量
+- **模板化配置**：包含所有可配置项和详细说明
+- **减少错误**：避免手动输入时的拼写错误
+- **快速上手**：特别适合非技术人员使用
+
+### 🔄 如何获取项目更新
+
+**简单方式：重新部署**
+- 当项目有重要更新时，直接重新点击部署按钮
+- 这会创建一个包含最新功能的新版本
+
+**高级方式：技术用户专用**
+<details>
+<summary>点击展开详细步骤</summary>
+
+如果你有技术背景，可以使用以下方式获取更新：
+
+1. **Fork 方式**（推荐）
+   - [Fork 这个项目](https://github.com/huglemon/hophunt/fork)
+   - 在 Vercel 中连接你的 Fork 仓库
+   - 在 GitHub 上点击 "Sync fork" 获取更新
+
+2. **Git 命令方式**
+   ```bash
+   git remote add upstream https://github.com/huglemon/hophunt.git
+   git fetch upstream
+   git merge upstream/main
+   git push origin main
+   ```
+
+</details>
 
 ### 配置方式对比
 
@@ -285,6 +307,33 @@ pnpm dev
 | `NEXT_PUBLIC_COUPON_CODE`      | 优惠券代码     | 'VOTE2024'             |
 | `NEXT_PUBLIC_COUPON_DISCOUNT`  | 优惠券折扣     | '8 折优惠'             |
 | `NEXT_PUBLIC_COUPON_IMAGE`     | 优惠券图片路径 | '/coupon.png'          |
+
+## 🔄 获取项目更新
+
+**🎯 推荐方式：重新部署**
+- 当项目有重要更新时，直接重新点击部署按钮
+- 这是最简单的方式，适合所有用户
+
+**⚙️ 高级方式（技术用户）**
+<details>
+<summary>点击展开技术细节</summary>
+
+如果你有技术背景且需要保持代码同步：
+
+1. **Fork 方式**
+   - [Fork 项目](https://github.com/huglemon/hophunt/fork)
+   - 在 Vercel 中连接 Fork 仓库
+   - 使用 GitHub 的 "Sync fork" 功能
+
+2. **Git 命令方式**
+   ```bash
+   git remote add upstream https://github.com/huglemon/hophunt.git
+   git fetch upstream
+   git merge upstream/main
+   git push origin main
+   ```
+
+</details>
 
 ## 📱 功能说明
 
