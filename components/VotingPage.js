@@ -92,31 +92,54 @@ export default function VotingPage({ initialStats = null }) {
 	const handleFinalVote = async () => {
 		try {
 			setVotingInProgress(true);
-			await recordVote();
-			setShowModal(false);
-
+			
 			// 获取ProductHunt URL
-			const productHuntUrl = config.product.productHuntUrl || 'https://www.producthunt.com';
+			const productHuntUrl = 'https://www.producthunt.com';
 			console.log('准备跳转到:', productHuntUrl);
+			console.log('完整配置:', config.product);
 
-			// 先打开ProductHunt页面
-			const newWindow = window.open(productHuntUrl, '_blank', 'noreferrer,noopener');
+			// 方法1: 立即在用户点击的同步上下文中打开新窗口
+			console.log('尝试打开新窗口...');
+			let newWindow;
+			try {
+				newWindow = window.open(productHuntUrl, '_blank');
+				console.log('新窗口对象:', newWindow);
+			} catch (popupError) {
+				console.error('window.open失败:', popupError);
+				newWindow = null;
+			}
+			
+			// 异步记录投票
+			recordVote().catch(console.error);
 			
 			// 检查是否成功打开新窗口
-			if (!newWindow || newWindow.closed) {
-				console.warn('新窗口被阻止，尝试直接跳转');
-				// 如果新窗口被阻止，直接在当前窗口跳转
-				window.location.href = productHuntUrl;
-				return;
+			if (!newWindow) {
+				console.warn('新窗口为null，尝试备用方案');
+				
+				// 方法2: 创建隐藏链接并点击
+				const link = document.createElement('a');
+				link.href = productHuntUrl;
+				link.target = '_blank';
+				link.rel = 'noopener noreferrer';
+				link.style.display = 'none';
+				document.body.appendChild(link);
+				link.click();
+				document.body.removeChild(link);
+				
+				console.log('使用链接点击方式跳转');
 			}
 
+			console.log('跳转处理完成，1.5秒后跳转到感谢页面');
+			setShowModal(false);
+			
 			// 延迟跳转到感谢页面，确保新窗口有时间打开
 			setTimeout(() => {
+				console.log('跳转到感谢页面');
 				window.location.href = '/thank-you';
-			}, 1000);
+			}, 1500);
 			
 		} catch (error) {
-			console.error('投票记录失败:', error);
+			console.error('投票处理失败:', error);
 			// 即使记录失败，也继续投票流程
 			setShowModal(false);
 			setVotingInProgress(false);
