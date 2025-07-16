@@ -19,7 +19,7 @@
 -   **框架**: Next.js 15.4.1
 -   **样式**: Tailwind CSS
 -   **图标**: Lucide React
--   **数据存储**: Vercel KV (Redis) / localStorage
+-   **数据存储**: Upstash Redis / localStorage
 -   **部署**: Vercel (推荐)
 
 ## 🚀 快速开始
@@ -109,25 +109,47 @@ HopHunt 支持两种数据存储模式：
 -   实时同步所有用户的投票数据
 -   适合生产环境使用
 
-**配置 Vercel KV 步骤：**
+**配置 Upstash Redis 步骤：**
 
 1. 登录 [Vercel Dashboard](https://vercel.com/dashboard)
 2. 进入你的项目页面
 3. 点击 "Storage" 标签
-4. 点击 "Create Database" 选择 "KV"
-5. 创建数据库后，复制提供的环境变量
-6. 在项目设置的 "Environment Variables" 中添加：
+4. 选择 "Browse Marketplace" 或直接选择 KV 存储选项
+5. 选择 Upstash Redis (KV) 并创建数据库
+6. 创建数据库后，复制提供的环境变量
+7. 在项目设置的 "Environment Variables" 中添加：
     - `KV_REST_API_URL`
     - `KV_REST_API_TOKEN`
+
+> **重要说明：** 项目现在使用 Upstash Redis SDK (`@upstash/redis`) 而不是 `@vercel/kv`。Upstash 会提供完整的环境变量配置，包括 `KV_URL`、`KV_REST_API_URL`、`KV_REST_API_TOKEN` 等。
 
 **本地开发配置：**
 
 创建 `.env.local` 文件：
 
 ```bash
-KV_REST_API_URL=your_kv_rest_api_url
-KV_REST_API_TOKEN=your_kv_rest_api_token
+KV_REST_API_URL=https://your-redis-instance.upstash.io
+KV_REST_API_TOKEN=your_upstash_redis_token
 ```
+
+**安装依赖：**
+
+如果你是从旧版本升级，需要更新依赖：
+
+```bash
+npm uninstall @vercel/kv
+npm install @upstash/redis
+```
+
+**环境变量配置：**
+
+复制 `env.example` 文件为 `.env.local` 并填入你的 Upstash Redis 配置：
+
+```bash
+cp env.example .env.local
+```
+
+然后编辑 `.env.local` 文件，填入从 Upstash 获取的环境变量。
 
 ### 5. 运行开发服务器
 
@@ -175,12 +197,12 @@ pnpm dev
 
 3. **配置数据库**（推荐）
 
-    - 在 Vercel 中创建 KV 数据库（参考下方数据库配置说明）
+    - 在 Vercel 中创建 Upstash Redis 数据库（参考下方数据库配置说明）
     - 添加数据库环境变量：
 
     ```bash
-    KV_REST_API_URL=your_kv_rest_api_url
-    KV_REST_API_TOKEN=your_kv_rest_api_token
+    KV_REST_API_URL=https://your-redis-instance.upstash.io
+    KV_REST_API_TOKEN=your_upstash_redis_token
     ```
 
 4. **配置感谢页面**（可选）
@@ -202,7 +224,7 @@ pnpm dev
 2. 在 [Vercel](https://vercel.com) 创建账户
 3. 连接你的 GitHub 仓库
 4. 修改 `lib/config.js` 文件配置产品信息
-5. 配置 Vercel KV 数据库（推荐）
+5. 配置 Upstash Redis 数据库（推荐）
 6. 部署项目
 
 **⚠️ 部署注意事项：**
@@ -251,8 +273,8 @@ pnpm dev
 | `NEXT_PUBLIC_DATABASE_MODE`   | 数据存储模式         | 'auto'     |
 | `NEXT_PUBLIC_DATA_EXPIRATION` | 数据过期时间（小时） | 24         |
 | `NEXT_PUBLIC_KEY_PREFIX`      | 数据库键名前缀       | 'hophunt:' |
-| `KV_REST_API_URL`             | Vercel KV API URL    | -          |
-| `KV_REST_API_TOKEN`           | Vercel KV API Token  | -          |
+| `KV_REST_API_URL`             | Upstash Redis API URL | -          |
+| `KV_REST_API_TOKEN`           | Upstash Redis API Token | -          |
 
 #### 感谢页面配置
 
@@ -408,7 +430,7 @@ tasks: [
 -   [Tailwind CSS](https://tailwindcss.com/) - CSS 框架
 -   [Lucide React](https://lucide.dev/) - 图标库
 -   [Vercel](https://vercel.com/) - 部署平台
--   [Vercel KV](https://vercel.com/storage/kv) - Redis 数据库
+-   [Upstash](https://upstash.com/) - Redis 数据库服务
 
 ## 🔗 作者其他作品
 
