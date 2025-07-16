@@ -18,19 +18,35 @@ export default function VotingPage() {
 	const [showModal, setShowModal] = useState(false);
 	const [visibleTasks, setVisibleTasks] = useState(0);
 	const [tasks, setTasks] = useState(config.tasks);
+	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
-		// 记录访问
-		recordVisit();
+		// 异步初始化数据
+		const initializeData = async () => {
+			try {
+				// 记录访问
+				await recordVisit();
 
-		// 获取统计数据
-		const currentStats = getHourlyStats();
-		setStats(currentStats);
+				// 获取统计数据
+				const currentStats = await getHourlyStats();
+				setStats(currentStats);
 
-		// 检查是否需要显示警告
-		setShowWarning(shouldShowWarning());
-		setShouldWaitTime(shouldWait());
-		setLastVoteTime(getLastVoteTime());
+				// 检查是否需要显示警告
+				const warning = await shouldShowWarning();
+				const waitTime = await shouldWait();
+				const lastVote = await getLastVoteTime();
+				
+				setShowWarning(warning);
+				setShouldWaitTime(waitTime);
+				setLastVoteTime(lastVote);
+			} catch (error) {
+				console.error('初始化数据失败:', error);
+			} finally {
+				setLoading(false);
+			}
+		};
+
+		initializeData();
 	}, []);
 
 	const handleVoteClick = async () => {
@@ -43,21 +59,28 @@ export default function VotingPage() {
 		setShowModal(true);
 	};
 
-	const handleFinalVote = () => {
-		recordVote();
-		setShowModal(false);
+	const handleFinalVote = async () => {
+		try {
+			await recordVote();
+			setShowModal(false);
 
-		// 使用noreferrer和noopener来隐藏来源
-		const link = document.createElement('a');
-		link.href = config.product.productHuntUrl;
-		link.target = '_blank';
-		link.rel = 'noreferrer noopener';
-		document.body.appendChild(link);
-		link.click();
-		document.body.removeChild(link);
+			// 使用noreferrer和noopener来隐藏来源
+			const link = document.createElement('a');
+			link.href = config.product.productHuntUrl;
+			link.target = '_blank';
+			link.rel = 'noreferrer noopener';
+			document.body.appendChild(link);
+			link.click();
+			document.body.removeChild(link);
 
-		// 跳转到感谢页面
-		window.location.href = '/thank-you';
+			// 跳转到感谢页面
+			window.location.href = '/thank-you';
+		} catch (error) {
+			console.error('投票记录失败:', error);
+			// 即使记录失败，也继续投票流程
+			setShowModal(false);
+			window.location.href = '/thank-you';
+		}
 	};
 
 	const formatTime = (timestamp) => {
@@ -93,6 +116,19 @@ export default function VotingPage() {
 			return () => clearInterval(interval);
 		}
 	}, [showModal, tasks.length]);
+
+	// 显示加载状态
+	if (loading) {
+		return (
+			<div className='bg-white'>
+				<div className='flex items-center justify-center pt-24 md:pt-48 pb-16'>
+					<div className='max-w-2xl mx-auto px-4 sm:px-8 text-center'>
+						<div className='text-gray-500'>加载中...</div>
+					</div>
+				</div>
+			</div>
+		);
+	}
 
 	return (
 		<div className='bg-white'>
