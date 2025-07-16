@@ -22,6 +22,7 @@ export default function VotingPage({ initialStats = null }) {
 	const [visibleTasks, setVisibleTasks] = useState(0);
 	const [tasks, setTasks] = useState(config.tasks);
 	const [loading, setLoading] = useState(false);
+	const [votingInProgress, setVotingInProgress] = useState(false);
 	const [dataLoading, setDataLoading] = useState(!initialStats); // 如果有初始数据，则不显示加载状态
 
 	useEffect(() => {
@@ -90,24 +91,35 @@ export default function VotingPage({ initialStats = null }) {
 
 	const handleFinalVote = async () => {
 		try {
+			setVotingInProgress(true);
 			await recordVote();
 			setShowModal(false);
 
-			// 使用noreferrer和noopener来隐藏来源
-			const link = document.createElement('a');
-			link.href = config.product.productHuntUrl || 'https://www.producthunt.com';
-			link.target = '_blank';
-			link.rel = 'noreferrer noopener';
-			document.body.appendChild(link);
-			link.click();
-			document.body.removeChild(link);
+			// 获取ProductHunt URL
+			const productHuntUrl = config.product.productHuntUrl || 'https://www.producthunt.com';
+			console.log('准备跳转到:', productHuntUrl);
 
-			// 跳转到感谢页面
-			window.location.href = '/thank-you';
+			// 先打开ProductHunt页面
+			const newWindow = window.open(productHuntUrl, '_blank', 'noreferrer,noopener');
+			
+			// 检查是否成功打开新窗口
+			if (!newWindow || newWindow.closed) {
+				console.warn('新窗口被阻止，尝试直接跳转');
+				// 如果新窗口被阻止，直接在当前窗口跳转
+				window.location.href = productHuntUrl;
+				return;
+			}
+
+			// 延迟跳转到感谢页面，确保新窗口有时间打开
+			setTimeout(() => {
+				window.location.href = '/thank-you';
+			}, 1000);
+			
 		} catch (error) {
 			console.error('投票记录失败:', error);
 			// 即使记录失败，也继续投票流程
 			setShowModal(false);
+			setVotingInProgress(false);
 			window.location.href = '/thank-you';
 		}
 	};
@@ -270,9 +282,12 @@ export default function VotingPage({ initialStats = null }) {
 							<div className='space-y-3'>
 								<button
 									onClick={handleFinalVote}
-									className='w-full py-3 px-4 text-sm font-medium transition-colors bg-black text-white hover:bg-gray-800'
+									disabled={votingInProgress}
+									className={`w-full py-3 px-4 text-sm font-medium transition-colors ${
+										votingInProgress ? 'bg-gray-400 cursor-not-allowed' : 'bg-black hover:bg-gray-800'
+									} text-white`}
 								>
-									确认投票
+									{votingInProgress ? '正在处理投票...' : '确认投票'}
 								</button>
 								{shouldWaitTime && getWaitTimeRemaining() > 0 && (
 									<div className='text-xs text-yellow-600 text-center'>
@@ -281,7 +296,8 @@ export default function VotingPage({ initialStats = null }) {
 								)}
 								<button
 									onClick={() => setShowModal(false)}
-									className='w-full py-3 px-4 text-sm font-medium border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors'
+									disabled={votingInProgress}
+									className='w-full py-3 px-4 text-sm font-medium border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50'
 								>
 									取消
 								</button>
