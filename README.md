@@ -27,7 +27,7 @@
 ### 1. 克隆项目
 
 ```bash
-git clone https://github.com/yourusername/hophunt.git
+git clone https://github.com/huglemon/hophunt.git
 cd hophunt
 ```
 
@@ -52,7 +52,7 @@ export const config = {
 		name: 'Your Product Name',
 		description: 'Your amazing product description',
 		logoUrl: '/logo.png',
-		productUrl: 'https://github.com/yourusername/yourproject',
+		productUrl: 'https://github.com/huglemon/hothunt',
 		productHuntUrl: 'https://www.producthunt.com',
 	},
 
@@ -145,7 +145,7 @@ pnpm dev
 
 ### 方法一：一键部署
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/hophunt)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/huglemon/hophunt)
 
 **⚠️ 部署前必读：**
 - 本项目要求保留 footer 中的版权信息不变
@@ -168,7 +168,7 @@ pnpm dev
     NEXT_PUBLIC_PRODUCT_NAME=你的产品名称
     NEXT_PUBLIC_PRODUCT_DESCRIPTION=你的产品描述
     NEXT_PUBLIC_PRODUCTHUNT_URL=https://www.producthunt.com/posts/your-product
-    NEXT_PUBLIC_PRODUCT_URL=https://github.com/yourusername/yourproject
+    NEXT_PUBLIC_PRODUCT_URL=https://github.com/huglemon/hothunt
     NEXT_PUBLIC_HOMEPAGE_TITLE=感谢你来投票
     NEXT_PUBLIC_HOMEPAGE_SUBTITLE=你的每一票都很珍贵，感谢你愿意为我们的产品投出支持的一票
     ```
@@ -398,7 +398,7 @@ tasks: [
 
 如果你遇到问题或有建议，请：
 
-1. 查看 [Issues](https://github.com/yourusername/hophunt/issues)
+1. 查看 [Issues](https://github.com/huglemon/hophunt/issues)
 2. 创建新的 Issue
 3. 联系作者：[hi@huglemon.com](mailto:hi@huglemon.com) / Wechat: YFLowerRed
 
@@ -410,6 +410,37 @@ tasks: [
 -   [Vercel](https://vercel.com/) - 部署平台
 -   [Vercel KV](https://vercel.com/storage/kv) - Redis 数据库
 
+## 🔗 作者其他作品
+
+### 开源项目
+- **[DirsHunt](https://dirshunt.com)** - 目录导航和发现平台
+- **[DirsHunt Ext](https://dirshunt.com/ext)** - 智能填写导航站表单
+- **[HopHunt](https://github.com/huglemon/hophunt)** - ProductHunt 投票中间页
+
+### 产品和服务
+- **[个人网站](https://www.huglemon.com)** - 技术博客和作品展示
+- **[技术咨询](mailto:hi@huglemon.com)** - 提供技术咨询和开发服务
+
+## ☕ 支持作者
+
+如果这个项目对你有帮助，欢迎支持作者继续创作更多优质的开源项目！
+
+### 捐赠方式
+
+<div align="center">
+
+**微信赞赏码**
+
+<img src="/public/donate-wechat.png" alt="微信赞赏码" width="200"/>
+
+</div>
+
+### 其他支持方式
+- ⭐ 给项目点个 Star
+- 🐛 提交 Bug 报告和功能建议
+- 📝 贡献代码和文档
+- 📢 向朋友推荐这个项目
+
 ---
 
-**Made with ❤️ by Huglemon**
+**Made with ❤️ by [Huglemon](https://huglemon.com)**

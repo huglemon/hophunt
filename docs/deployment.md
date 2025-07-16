@@ -4,7 +4,7 @@
 
 ### 1. 一键部署
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/yourusername/hophunt)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/huglemon/hophunt)
 
 **一键部署后的配置步骤：**
 
@@ -20,7 +20,7 @@
    NEXT_PUBLIC_PRODUCT_NAME=你的产品名称
    NEXT_PUBLIC_PRODUCT_DESCRIPTION=你的产品描述
    NEXT_PUBLIC_PRODUCTHUNT_URL=https://www.producthunt.com/posts/your-product
-   NEXT_PUBLIC_PRODUCT_URL=https://github.com/yourusername/yourproject
+   NEXT_PUBLIC_PRODUCT_URL=https://github.com/huglemon/hothunt
    NEXT_PUBLIC_HOMEPAGE_TITLE=感谢你来投票
    NEXT_PUBLIC_HOMEPAGE_SUBTITLE=你的每一票都很珍贵，感谢你愿意为我们的产品投出支持的一票
    ```
@@ -119,7 +119,7 @@
 NEXT_PUBLIC_PRODUCT_NAME=你的产品名称
 NEXT_PUBLIC_PRODUCT_DESCRIPTION=你的产品描述
 NEXT_PUBLIC_LOGO_URL=/logo.png
-NEXT_PUBLIC_PRODUCT_URL=https://github.com/yourusername/yourproject
+NEXT_PUBLIC_PRODUCT_URL=https://github.com/huglemon/hothunt
 NEXT_PUBLIC_PRODUCTHUNT_URL=https://www.producthunt.com/posts/your-product
 
 # 首页文本
@@ -154,7 +154,7 @@ export const config = {
     name: '你的产品名称',
     description: '你的产品描述',
     logoUrl: '/logo.png',
-    productUrl: 'https://github.com/yourusername/yourproject',
+    productUrl: 'https://github.com/huglemon/hothunt',
     productHuntUrl: 'https://www.producthunt.com/posts/your-product',
   },
   // ... 其他配置
@@ -261,6 +261,6 @@ export const config = {
 
 如果遇到问题，请：
 
-1. 查看 [GitHub Issues](https://github.com/yourusername/hophunt/issues)
+1. 查看 [GitHub Issues](https://github.com/huglemon/hophunt/issues)
 2. 检查 Vercel 部署日志
 3. 联系技术支持 
