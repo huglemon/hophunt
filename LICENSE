@@ -12,6 +12,12 @@ furnished to do so, subject to the following conditions:
 The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
 
+ADDITIONAL REQUIREMENT:
+The footer component and its copyright attribution ("© [year] HopHunt with ❤️ by DirsHunt | Huglemon") 
+must remain intact and unmodified in all copies, distributions, and derivative works of the Software. 
+This includes but is not limited to the copyright notice, author attribution, and any associated links 
+in the footer section of the application.
+
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
