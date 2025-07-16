@@ -2,16 +2,33 @@
 import { NextResponse } from 'next/server';
 import { getStatsFromDB, recordVisitToDB, recordVoteToDB, cleanupExpiredData } from '@/lib/db';
 
+// 内存缓存
+let statsCache = null;
+let cacheTimestamp = 0;
+const CACHE_DURATION = 30 * 1000; // 30秒缓存
+
 // 获取统计数据
 export async function GET() {
   try {
-    // 并行执行清理和获取数据
-    const [cleanupResult, dbStats] = await Promise.allSettled([
-      cleanupExpiredData(),
-      getStatsFromDB()
-    ]);
+    // 检查缓存
+    const now = Date.now();
+    if (statsCache && (now - cacheTimestamp) < CACHE_DURATION) {
+      const response = NextResponse.json({
+        success: true,
+        data: statsCache,
+        cached: true,
+      });
+      
+      // 添加缓存头
+      response.headers.set('Cache-Control', 'public, max-age=30, stale-while-revalidate=60');
+      return response;
+    }
     
-    if (dbStats.status !== 'fulfilled' || !dbStats.value) {
+    // 并行执行清理和获取数据，但不等待清理结果
+    const cleanupPromise = cleanupExpiredData().catch(console.error);
+    const dbStats = await getStatsFromDB();
+    
+    if (!dbStats) {
       return NextResponse.json({
         success: false,
         message: '数据库未配置或连接失败',
@@ -25,37 +42,42 @@ export async function GET() {
     }
     
     // 计算近1小时的统计
-    const now = Date.now();
     const hourAgo = now - 60 * 60 * 1000;
     
-    const statsData = dbStats.value;
-    const recentVisits = statsData.visits.filter(visit => {
+    const recentVisits = dbStats.visits.filter(visit => {
       const timestamp = typeof visit === 'string' ? parseInt(visit) : visit;
       return timestamp > hourAgo;
     });
     
-    const recentVotes = statsData.votes.filter(vote => {
+    const recentVotes = dbStats.votes.filter(vote => {
       const timestamp = typeof vote === 'string' ? parseInt(vote) : vote;
       return timestamp > hourAgo;
     });
     
     // 获取最后一次投票时间
-    const lastVoteTime = statsData.votes.length > 0 ? 
-      Math.max(...statsData.votes.map(vote => typeof vote === 'string' ? parseInt(vote) : vote)) : 
+    const lastVoteTime = dbStats.votes.length > 0 ? 
+      Math.max(...dbStats.votes.map(vote => typeof vote === 'string' ? parseInt(vote) : vote)) : 
       null;
+    
+    const result = {
+      visits: recentVisits.length,
+      votes: recentVotes.length,
+      totalVisits: dbStats.totalVisits,
+      totalVotes: dbStats.totalVotes,
+      lastVoteTime,
+    };
+    
+    // 更新缓存
+    statsCache = result;
+    cacheTimestamp = now;
     
     const response = NextResponse.json({
       success: true,
-      data: {
-        visits: recentVisits.length,
-        votes: recentVotes.length,
-        totalVisits: statsData.totalVisits,
-        totalVotes: statsData.totalVotes,
-        lastVoteTime,
-      }
+      data: result,
+      cached: false,
     });
     
-    // 添加缓存头，缓存30秒
+    // 添加缓存头
     response.headers.set('Cache-Control', 'public, max-age=30, stale-while-revalidate=60');
     
     return response;
@@ -81,6 +103,8 @@ export async function POST(request) {
       success = await recordVisitToDB();
     } else if (action === 'vote') {
       success = await recordVoteToDB();
+      // 投票后清除缓存
+      statsCache = null;
     } else {
       return NextResponse.json({
         success: false,
@@ -93,6 +117,11 @@ export async function POST(request) {
         success: false,
         message: '数据库未配置或操作失败',
       }, { status: 500 });
+    }
+    
+    // 清除缓存以确保数据一致性
+    if (action === 'vote') {
+      statsCache = null;
     }
     
     return NextResponse.json({

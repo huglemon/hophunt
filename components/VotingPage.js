@@ -4,9 +4,10 @@ import { useState, useEffect } from 'react';
 import { AlertTriangle, ExternalLink, X } from 'lucide-react';
 import { config } from '@/lib/config';
 import { recordVisit, recordVote, getHourlyStats, shouldShowWarning, shouldWait, getLastVoteTime } from '@/lib/stats';
+import { StatsLoader, PageLoader } from '@/components/LoadingSpinner';
 
-export default function VotingPage() {
-	const [stats, setStats] = useState({
+export default function VotingPage({ initialStats = null }) {
+	const [stats, setStats] = useState(initialStats || {
 		visits: 0,
 		votes: 0,
 		totalVisits: 0,
@@ -14,59 +15,74 @@ export default function VotingPage() {
 	});
 	const [showWarning, setShowWarning] = useState(false);
 	const [shouldWaitTime, setShouldWaitTime] = useState(false);
-	const [lastVoteTime, setLastVoteTime] = useState(null);
+	const [lastVoteTime, setLastVoteTime] = useState(initialStats?.lastVoteTime || null);
 	const [showModal, setShowModal] = useState(false);
 	const [visibleTasks, setVisibleTasks] = useState(0);
 	const [tasks, setTasks] = useState(config.tasks);
 	const [loading, setLoading] = useState(false);
-	const [dataLoading, setDataLoading] = useState(true);
+	const [dataLoading, setDataLoading] = useState(!initialStats); // 如果有初始数据，则不显示加载状态
 
 	useEffect(() => {
-		// 异步初始化数据
-		const initializeData = async () => {
+		// 如果有初始数据，只需要记录访问和检查状态
+		const initializeClientData = async () => {
 			try {
-				// 并行执行所有异步操作
-				const [
-					visitResult,
-					currentStats,
-					warning,
-					waitTime,
-					lastVote
-				] = await Promise.allSettled([
-					recordVisit(),
-					getHourlyStats(),
-					shouldShowWarning(),
-					shouldWait(),
-					getLastVoteTime()
-				]);
+				// 记录访问（不等待结果）
+				recordVisit().catch(console.error);
+				
+				// 如果没有初始数据，则获取完整数据
+				if (!initialStats) {
+					const [
+						currentStats,
+						warning,
+						waitTime,
+						lastVote
+					] = await Promise.allSettled([
+						getHourlyStats(),
+						shouldShowWarning(),
+						shouldWait(),
+						getLastVoteTime()
+					]);
 
-				// 更新统计数据
-				if (currentStats.status === 'fulfilled') {
-					setStats(currentStats.value);
-				}
+					if (currentStats.status === 'fulfilled') {
+						setStats(currentStats.value);
+					}
 
-				// 更新警告状态
-				if (warning.status === 'fulfilled') {
-					setShowWarning(warning.value);
-				}
+					if (warning.status === 'fulfilled') {
+						setShowWarning(warning.value);
+					}
 
-				if (waitTime.status === 'fulfilled') {
-					setShouldWaitTime(waitTime.value);
-				}
+					if (waitTime.status === 'fulfilled') {
+						setShouldWaitTime(waitTime.value);
+					}
 
-				if (lastVote.status === 'fulfilled') {
-					setLastVoteTime(lastVote.value);
+					if (lastVote.status === 'fulfilled') {
+						setLastVoteTime(lastVote.value);
+					}
+				} else {
+					// 有初始数据时，只检查警告和等待状态
+					const [warning, waitTime] = await Promise.allSettled([
+						shouldShowWarning(),
+						shouldWait()
+					]);
+
+					if (warning.status === 'fulfilled') {
+						setShowWarning(warning.value);
+					}
+
+					if (waitTime.status === 'fulfilled') {
+						setShouldWaitTime(waitTime.value);
+					}
 				}
 
 			} catch (error) {
-				console.error('初始化数据失败:', error);
+				console.error('初始化客户端数据失败:', error);
 			} finally {
 				setDataLoading(false);
 			}
 		};
 
-		initializeData();
-	}, []);
+		initializeClientData();
+	}, [initialStats]);
 
 	const handleVoteClick = async () => {
 		// 自动复制产品名称
@@ -122,10 +138,6 @@ export default function VotingPage() {
 			const interval = setInterval(() => {
 				if (currentTask < tasks.length) {
 					setVisibleTasks(currentTask + 1);
-					// 自动完成任务
-					// setTasks(prev => prev.map((task, index) =>
-					//   index === currentTask ? { ...task, completed: true } : task
-					// ));
 					currentTask++;
 				} else {
 					clearInterval(interval);
@@ -175,138 +187,108 @@ export default function VotingPage() {
 					</div>
 
 					{/* 警告信息 */}
-					{(showWarning || shouldWaitTime) && (
-						<div className='bg-gray-50 border border-gray-200 p-4 sm:p-6 mb-8 sm:mb-12 text-left max-w-md mx-auto'>
-							<div className='flex items-start gap-3'>
-								<AlertTriangle className='w-5 h-5 text-gray-600 mt-0.5 flex-shrink-0' />
-								<div>
-									<h3 className='text-sm font-medium text-gray-900 mb-2'>温馨提示</h3>
-									<div className='text-sm text-gray-600 space-y-1'>
-										{shouldWaitTime && <p>建议休息 {getWaitTimeRemaining()} 分钟后再投票哦</p>}
-										{showWarning && <p>最近投票有点多，换个网络或稍后再试试吧</p>}
-									</div>
-								</div>
-							</div>
+					{showWarning && (
+						<div className='bg-yellow-50 border border-yellow-200 px-4 py-3 mb-8 sm:mb-12 text-sm text-yellow-800 flex items-center gap-2 mx-4 sm:mx-0'>
+							<AlertTriangle className='w-4 h-4 flex-shrink-0' />
+							<span>近期投票较为频繁，建议等待 {getWaitTimeRemaining()} 分钟后再投票</span>
 						</div>
 					)}
 
-					{/* 统计卡片 */}
-					<div className='bg-gray-50 border border-gray-200 p-6 sm:p-8 max-w-md mx-auto'>
-						<div className='grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 text-center'>
-							<div>
-								<div className='text-xl sm:text-2xl font-light text-gray-900 mb-1'>
-									{dataLoading ? (
-										<div className='h-8 w-8 bg-gray-200 rounded animate-pulse mx-auto'></div>
-									) : (
-										stats.visits
-									)}
+					{/* 统计数据 */}
+					{dataLoading ? (
+						<StatsLoader />
+					) : (
+						<div className='bg-gray-50 px-6 sm:px-8 py-6 sm:py-8 mx-4 sm:mx-0'>
+							<div className='grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 text-center'>
+								<div>
+									<div className='text-xl sm:text-2xl font-light text-gray-900 mb-1'>
+										{stats.visits}
+									</div>
+									<div className='text-xs text-gray-500'>本小时访问</div>
 								</div>
-								<div className='text-xs text-gray-500'>本小时访问</div>
+								<div>
+									<div className='text-xl sm:text-2xl font-light text-gray-900 mb-1'>
+										{stats.votes}
+									</div>
+									<div className='text-xs text-gray-500'>本小时投票</div>
+								</div>
+								<div>
+									<div className='text-xl sm:text-2xl font-light text-gray-900 mb-1'>
+										{stats.totalVisits}
+									</div>
+									<div className='text-xs text-gray-500'>累计访问</div>
+								</div>
+								<div>
+									<div className='text-xl sm:text-2xl font-light text-gray-900 mb-1'>
+										{stats.totalVotes}
+									</div>
+									<div className='text-xs text-gray-500'>累计投票</div>
+								</div>
 							</div>
-							<div>
-								<div className='text-xl sm:text-2xl font-light text-gray-900 mb-1'>
-									{dataLoading ? (
-										<div className='h-8 w-8 bg-gray-200 rounded animate-pulse mx-auto'></div>
-									) : (
-										stats.votes
-									)}
-								</div>
-								<div className='text-xs text-gray-500'>本小时投票</div>
-							</div>
-							<div>
-								<div className='text-xl sm:text-2xl font-light text-gray-900 mb-1'>
-									{dataLoading ? (
-										<div className='h-8 w-8 bg-gray-200 rounded animate-pulse mx-auto'></div>
-									) : (
-										stats.totalVisits
-									)}
-								</div>
-								<div className='text-xs text-gray-500'>累计访问</div>
-							</div>
-							<div>
-								<div className='text-xl sm:text-2xl font-light text-gray-900 mb-1'>
-									{dataLoading ? (
-										<div className='h-8 w-8 bg-gray-200 rounded animate-pulse mx-auto'></div>
-									) : (
-										stats.totalVotes
-									)}
-								</div>
-								<div className='text-xs text-gray-500'>累计投票</div>
+							<div className='mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-gray-200 text-xs text-gray-500'>
+								<p>上次投票: {formatTime(lastVoteTime)}</p>
 							</div>
 						</div>
-						<div className='mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-gray-200 text-xs text-gray-500'>
-							<p>上次投票: {dataLoading ? (
-								<span className='inline-block h-3 w-20 bg-gray-200 rounded animate-pulse'></span>
-							) : (
-								formatTime(lastVoteTime)
-							)}</p>
-						</div>
-					</div>
+					)}
 				</div>
 			</div>
 
 			{/* 任务清单弹窗 */}
 			{showModal && (
-				<div className='fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4'>
-					<div className='bg-white max-w-md w-full p-6 sm:p-8 border border-gray-200'>
-						<div className='flex items-center justify-between mb-4 sm:mb-6'>
-							<h2 className='text-base sm:text-lg font-medium text-gray-900'>准备投票</h2>
-							<button
-								onClick={() => setShowModal(false)}
-								className='text-gray-400 hover:text-gray-600'
-							>
-								<X className='w-5 h-5' />
-							</button>
-						</div>
+				<div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50'>
+					<div className='bg-white max-w-md w-full p-6 relative animate-fade-in'>
+						<button
+							onClick={() => setShowModal(false)}
+							className='absolute top-4 right-4 text-gray-400 hover:text-gray-600'
+						>
+							<X className='w-5 h-5' />
+						</button>
 
-						<p className='text-gray-600 mb-6 sm:mb-8 text-sm'>正在为你准备最佳投票体验...</p>
+						<h2 className='text-xl font-medium mb-6'>投票前确认</h2>
 
-						<div className='space-y-3 sm:space-y-4 mb-6 sm:mb-8'>
+						<div className='space-y-3 mb-6'>
 							{tasks.slice(0, visibleTasks).map((task, index) => (
 								<div
 									key={task.id}
-									className={`flex items-center transition-all duration-500 ${
-										index < visibleTasks ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+									className={`flex items-center gap-3 p-3 border transition-all duration-300 animate-slide-in ${
+										task.completed ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'
 									}`}
 								>
 									<div
-										className={`w-4 h-4 border mr-3 flex items-center justify-center transition-all duration-300 ${
-											task.completed ? 'bg-black border-black' : 'border-gray-300'
+										className={`w-4 h-4 rounded-full flex items-center justify-center text-xs ${
+											task.completed ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-600'
 										}`}
 									>
-										{task.completed && <div className='w-2 h-2 bg-white animate-pulse' />}
+										{task.completed ? '✓' : index + 1}
 									</div>
-									<span
-										className={`text-sm transition-all duration-300 ${
-											task.completed ? 'text-gray-500 line-through' : 'text-gray-900'
-										}`}
-									>
+									<span className={`text-sm ${task.completed ? 'text-green-800' : 'text-gray-700'}`}>
 										{task.text}
 									</span>
-									{task.completed && <span className='ml-2 text-xs text-green-600 animate-fade-in'>✓</span>}
 								</div>
 							))}
 						</div>
 
-						<div className='flex flex-col sm:flex-row gap-3'>
-							<button
-								onClick={() => setShowModal(false)}
-								className='flex-1 border border-gray-300 text-gray-700 py-3 px-4 text-sm hover:bg-gray-50 transition-colors'
-							>
-								等等再说
-							</button>
-							<button
-								onClick={handleFinalVote}
-								className={`flex-1 py-3 px-4 text-sm transition-all duration-300 ${
-									visibleTasks === tasks.length
-										? 'bg-black text-white hover:bg-gray-800'
-										: 'bg-gray-300 text-gray-500 cursor-not-allowed'
-								}`}
-								disabled={visibleTasks !== tasks.length}
-							>
-								{visibleTasks === tasks.length ? '好的，去投票' : '准备中...'}
-							</button>
-						</div>
+						{visibleTasks >= tasks.length && (
+							<div className='space-y-3'>
+								<button
+									onClick={handleFinalVote}
+									disabled={shouldWaitTime}
+									className={`w-full py-3 px-4 text-sm font-medium transition-colors ${
+										shouldWaitTime
+											? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+											: 'bg-black text-white hover:bg-gray-800'
+									}`}
+								>
+									{shouldWaitTime ? `请等待 ${getWaitTimeRemaining()} 分钟` : '确认投票'}
+								</button>
+								<button
+									onClick={() => setShowModal(false)}
+									className='w-full py-3 px-4 text-sm font-medium border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors'
+								>
+									取消
+								</button>
+							</div>
+						)}
 					</div>
 				</div>
 			)}
