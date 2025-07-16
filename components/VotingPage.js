@@ -194,10 +194,10 @@ export default function VotingPage({ initialStats = null }) {
 					</div>
 
 					{/* 警告信息 */}
-					{showWarning && shouldWaitTime && getWaitTimeRemaining() > 0 && (
-						<div className='bg-yellow-50 border border-yellow-200 px-4 py-3 mb-8 sm:mb-12 text-sm text-yellow-800 flex items-center gap-2 mx-4 sm:mx-0'>
+					{showWarning && getWaitTimeRemaining() > 0 && (
+						<div className='bg-blue-50 border border-blue-200 px-4 py-3 mb-8 sm:mb-12 text-sm text-blue-800 flex items-center gap-2 mx-4 sm:mx-0'>
 							<AlertTriangle className='w-4 h-4 flex-shrink-0' />
-							<span>近期投票较为频繁，建议等待 {getWaitTimeRemaining()} 分钟后再投票</span>
+							<span>💡 建议等待 {getWaitTimeRemaining()} 分钟后再投票，这样可以获得更好的投票效果</span>
 						</div>
 					)}
 
@@ -269,13 +269,15 @@ export default function VotingPage({ initialStats = null }) {
 							<div className='space-y-3'>
 								<button
 									onClick={handleFinalVote}
-									disabled={shouldWaitTime}
-									className={`w-full py-3 px-4 text-sm font-medium transition-colors ${
-										shouldWaitTime ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-black text-white hover:bg-gray-800'
-									}`}
+									className='w-full py-3 px-4 text-sm font-medium transition-colors bg-black text-white hover:bg-gray-800'
 								>
-									{shouldWaitTime ? `请等待 ${getWaitTimeRemaining()} 分钟` : '确认投票'}
+									确认投票
 								</button>
+								{shouldWaitTime && getWaitTimeRemaining() > 0 && (
+									<div className='text-xs text-yellow-600 text-center'>
+										💡 建议等待 {getWaitTimeRemaining()} 分钟后再投票，以获得更好的效果
+									</div>
+								)}
 								<button
 									onClick={() => setShowModal(false)}
 									className='w-full py-3 px-4 text-sm font-medium border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors'
