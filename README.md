@@ -7,7 +7,7 @@
 **👤 运营人员（无需技术背景）**
 - [📦 一键部署](#-一键部署推荐) - 点击按钮即可部署
 - [📋 简单配置](#-部署后的简单配置) - 配置产品信息
-- [📄 环境变量模板下载](#-环境变量模板下载) - 下载配置文件
+- [📄 批量配置](#-环境变量批量配置) - 一键复制粘贴配置
 
 **👨‍💻 技术人员**
 - [🛠️ 本地开发](#-技术栈) - 技术栈和本地开发
@@ -175,11 +175,22 @@ pnpm dev
    - 点击 "Settings" → "Environment Variables"
 
 2. **配置你的产品信息**（必需）
+   
+   **💡 快速配置方法：**
+   - 复制下面的环境变量（全选复制）
+   - 在 Vercel 的 "Environment Variables" 页面直接粘贴
+   - Vercel 会自动识别并创建多个环境变量
+   
    ```bash
    NEXT_PUBLIC_PRODUCT_NAME=你的产品名称
    NEXT_PUBLIC_PRODUCT_DESCRIPTION=你的产品描述
    NEXT_PUBLIC_PRODUCTHUNT_URL=https://www.producthunt.com/posts/your-product
    ```
+   
+   **📝 编辑说明：**
+   - 将 `你的产品名称` 替换为实际的产品名称
+   - 将 `你的产品描述` 替换为实际的产品描述
+   - 将 `your-product` 替换为你的 ProductHunt 产品页面链接
 
 3. **添加数据库**（推荐，实现真正的统计功能）
    - 在 Vercel 项目中点击 "Storage" 标签
@@ -192,40 +203,67 @@ pnpm dev
 
 **🎉 完成！你的投票页面就可以使用了！**
 
-## 📄 环境变量模板下载
+## 📄 环境变量批量配置
 
-为了让配置更简单，我们提供了环境变量模板文件：
+为了让配置更简单，你可以使用 Vercel 的批量粘贴功能：
 
-### 🔗 下载链接
+### 🚀 快速配置方法
 
-**[点击下载 env.template](https://raw.githubusercontent.com/huglemon/hophunt/main/env.template)**
+**Vercel 支持批量粘贴环境变量！** 只需复制下面的配置，直接粘贴到 Vercel 即可：
 
-### 📋 使用方法
+#### 🔧 基础配置（必需）
+```bash
+NEXT_PUBLIC_PRODUCT_NAME=你的产品名称
+NEXT_PUBLIC_PRODUCT_DESCRIPTION=你的产品描述
+NEXT_PUBLIC_PRODUCTHUNT_URL=https://www.producthunt.com/posts/your-product
+```
 
-1. **下载模板文件**
-   - 点击上方链接下载 `env.template` 文件
-   - 或者右键 → "另存为" 保存到本地
+#### 🎨 首页文本配置（可选）
+```bash
+NEXT_PUBLIC_HOMEPAGE_TITLE=感谢你来投票
+NEXT_PUBLIC_HOMEPAGE_SUBTITLE=你的每一票都很珍贵，感谢你愿意为我们的产品投出支持的一票
+```
+
+#### 🎁 感谢页面配置（可选）
+```bash
+NEXT_PUBLIC_THANKYOU_TITLE=谢谢你的支持！
+NEXT_PUBLIC_THANKYOU_MESSAGE=你的每一票都很珍贵！
+NEXT_PUBLIC_COUPON_CODE=VOTE2024
+NEXT_PUBLIC_COUPON_DISCOUNT=8折优惠
+```
+
+#### ⚙️ 高级配置（可选）
+```bash
+NEXT_PUBLIC_MIN_WAIT_TIME=300000
+NEXT_PUBLIC_MAX_HOURLY_VOTES=10
+NEXT_PUBLIC_WARNING_THRESHOLD=5
+```
+
+### 📋 使用步骤
+
+1. **复制需要的配置**
+   - 选择上面的配置块（基础配置是必需的）
+   - 全选复制（Ctrl+A, Ctrl+C 或 Cmd+A, Cmd+C）
 
 2. **编辑配置信息**
-   - 用文本编辑器打开下载的文件
-   - 根据注释提示填写你的产品信息
-   - 只需要填写必需的配置项即可
+   - 将配置中的示例值替换为你的实际信息
+   - 只需要修改 `=` 后面的值即可
 
-3. **导入到 Vercel**
-   - 在 Vercel 项目设置中点击 "Environment Variables"
-   - 点击右上角的 "Import .env File" 按钮
-   - 选择编辑好的文件进行导入
+3. **粘贴到 Vercel**
+   - 在 Vercel 项目设置的 "Environment Variables" 页面
+   - 直接粘贴（Ctrl+V 或 Cmd+V）
+   - **Vercel 会自动识别并创建多个环境变量**
 
 4. **重新部署**
-   - 导入完成后，点击 "Redeploy" 重新部署
+   - 粘贴完成后，点击 "Redeploy" 重新部署
    - 等待部署完成即可
 
 ### ⚡ 优势
 
-- **一次配置，批量导入**：不用逐个添加环境变量
-- **模板化配置**：包含所有可配置项和详细说明
+- **一键粘贴**：不用逐个添加环境变量
+- **自动识别**：Vercel 自动解析多行环境变量
 - **减少错误**：避免手动输入时的拼写错误
-- **快速上手**：特别适合非技术人员使用
+- **按需选择**：可以只复制需要的配置块
 
 ### 🔄 如何获取项目更新
 

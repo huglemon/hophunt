@@ -16,17 +16,21 @@
 
 2. **配置你的产品信息**（必需）
 
-   **方式一：使用环境变量模板（推荐）**
-   - [下载 env.template](https://raw.githubusercontent.com/huglemon/hophunt/main/env.template)
-   - 编辑文件中的配置信息
-   - 在 Vercel 中点击 "Import .env File" 导入
+   **💡 快速配置方法（推荐）：**
+   - 复制下面的环境变量（全选复制）
+   - 在 Vercel 的 "Environment Variables" 页面直接粘贴
+   - Vercel 会自动识别并创建多个环境变量
 
-   **方式二：手动添加**
    ```bash
    NEXT_PUBLIC_PRODUCT_NAME=你的产品名称
    NEXT_PUBLIC_PRODUCT_DESCRIPTION=你的产品描述
    NEXT_PUBLIC_PRODUCTHUNT_URL=https://www.producthunt.com/posts/your-product
    ```
+
+   **📝 编辑说明：**
+   - 将 `你的产品名称` 替换为实际的产品名称
+   - 将 `你的产品描述` 替换为实际的产品描述
+   - 将 `your-product` 替换为你的 ProductHunt 产品页面链接
 
 3. **添加数据库**（推荐，实现真正的统计功能）
    - 在 Vercel 项目中点击 "Storage" 标签
