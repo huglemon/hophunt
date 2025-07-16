@@ -94,7 +94,7 @@ export default function VotingPage({ initialStats = null }) {
 			setVotingInProgress(true);
 			
 			// 获取ProductHunt URL
-			const productHuntUrl = 'https://www.producthunt.com';
+			const productHuntUrl = 'https://www.producthunt.com/search';
 			console.log('准备跳转到:', productHuntUrl);
 			console.log('完整配置:', config.product);
 
