@@ -119,12 +119,18 @@ export default function VotingPage({ initialStats = null }) {
 
 	const getWaitTimeRemaining = () => {
 		if (!lastVoteTime) {
-			setShowWarning(false);
 			return 0;
 		}
 		const now = Date.now();
 		const remaining = config.voting.minWaitTime - (now - lastVoteTime);
-		return Math.max(0, Math.ceil(remaining / 1000 / 60));
+		const waitMinutes = Math.max(0, Math.ceil(remaining / 1000 / 60));
+		
+		// 如果不需要等待，隐藏警告
+		if (waitMinutes === 0) {
+			setShowWarning(false);
+		}
+		
+		return waitMinutes;
 	};
 
 	// 弹窗打开时的动画效果
@@ -188,7 +194,7 @@ export default function VotingPage({ initialStats = null }) {
 					</div>
 
 					{/* 警告信息 */}
-					{showWarning && (
+					{showWarning && shouldWaitTime && getWaitTimeRemaining() > 0 && (
 						<div className='bg-yellow-50 border border-yellow-200 px-4 py-3 mb-8 sm:mb-12 text-sm text-yellow-800 flex items-center gap-2 mx-4 sm:mx-0'>
 							<AlertTriangle className='w-4 h-4 flex-shrink-0' />
 							<span>近期投票较为频繁，建议等待 {getWaitTimeRemaining()} 分钟后再投票</span>

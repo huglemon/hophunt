@@ -1,6 +1,6 @@
 // 统计数据API路由
 import { NextResponse } from 'next/server';
-import { getStatsFromDB, recordVisitToDB, recordVoteToDB, cleanupExpiredData } from '@/lib/db';
+import { getStatsFromDB, recordVisitToDB, recordVoteToDB, repairDataConsistency } from '@/lib/db';
 
 // 内存缓存
 let statsCache = null;
@@ -25,7 +25,7 @@ export async function GET() {
     }
     
     // 并行执行清理和获取数据，但不等待清理结果
-    const cleanupPromise = cleanupExpiredData().catch(console.error);
+    const repairPromise = repairDataConsistency().catch(console.error);
     const dbStats = await getStatsFromDB();
     
     if (!dbStats) {
@@ -59,11 +59,15 @@ export async function GET() {
       Math.max(...dbStats.votes.map(vote => typeof vote === 'string' ? parseInt(vote) : vote)) : 
       null;
     
+    // 数据一致性检查：确保累计数据不小于当前数据
+    const correctedTotalVisits = Math.max(dbStats.totalVisits, dbStats.visits.length);
+    const correctedTotalVotes = Math.max(dbStats.totalVotes, dbStats.votes.length);
+    
     const result = {
       visits: recentVisits.length,
       votes: recentVotes.length,
-      totalVisits: dbStats.totalVisits,
-      totalVotes: dbStats.totalVotes,
+      totalVisits: correctedTotalVisits,
+      totalVotes: correctedTotalVotes,
       lastVoteTime,
     };
     
