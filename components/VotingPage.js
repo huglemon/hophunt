@@ -118,7 +118,10 @@ export default function VotingPage({ initialStats = null }) {
 	};
 
 	const getWaitTimeRemaining = () => {
-		if (!lastVoteTime) return 0;
+		if (!lastVoteTime) {
+			setShowWarning(false);
+			return 0;
+		}
 		const now = Date.now();
 		const remaining = config.voting.minWaitTime - (now - lastVoteTime);
 		return Math.max(0, Math.ceil(remaining / 1000 / 60));
