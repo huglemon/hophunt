@@ -5,16 +5,16 @@ import { getStatsFromDB, recordVisitToDB, recordVoteToDB, cleanupExpiredData } f
 // 获取统计数据
 export async function GET() {
   try {
-    // 清理过期数据
-    await cleanupExpiredData();
+    // 并行执行清理和获取数据
+    const [cleanupResult, dbStats] = await Promise.allSettled([
+      cleanupExpiredData(),
+      getStatsFromDB()
+    ]);
     
-    // 获取数据库统计数据
-    const dbStats = await getStatsFromDB();
-    
-    if (!dbStats) {
+    if (dbStats.status !== 'fulfilled' || !dbStats.value) {
       return NextResponse.json({
         success: false,
-        message: '数据库未配置，请检查环境变量',
+        message: '数据库未配置或连接失败',
         data: {
           visits: 0,
           votes: 0,
@@ -28,31 +28,37 @@ export async function GET() {
     const now = Date.now();
     const hourAgo = now - 60 * 60 * 1000;
     
-    const recentVisits = dbStats.visits.filter(visit => {
+    const statsData = dbStats.value;
+    const recentVisits = statsData.visits.filter(visit => {
       const timestamp = typeof visit === 'string' ? parseInt(visit) : visit;
       return timestamp > hourAgo;
     });
     
-    const recentVotes = dbStats.votes.filter(vote => {
+    const recentVotes = statsData.votes.filter(vote => {
       const timestamp = typeof vote === 'string' ? parseInt(vote) : vote;
       return timestamp > hourAgo;
     });
     
     // 获取最后一次投票时间
-    const lastVoteTime = dbStats.votes.length > 0 ? 
-      Math.max(...dbStats.votes.map(vote => typeof vote === 'string' ? parseInt(vote) : vote)) : 
+    const lastVoteTime = statsData.votes.length > 0 ? 
+      Math.max(...statsData.votes.map(vote => typeof vote === 'string' ? parseInt(vote) : vote)) : 
       null;
     
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       data: {
         visits: recentVisits.length,
         votes: recentVotes.length,
-        totalVisits: dbStats.totalVisits,
-        totalVotes: dbStats.totalVotes,
+        totalVisits: statsData.totalVisits,
+        totalVotes: statsData.totalVotes,
         lastVoteTime,
       }
     });
+    
+    // 添加缓存头，缓存30秒
+    response.headers.set('Cache-Control', 'public, max-age=30, stale-while-revalidate=60');
+    
+    return response;
     
   } catch (error) {
     console.error('获取统计数据失败:', error);

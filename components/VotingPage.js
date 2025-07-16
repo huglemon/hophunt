@@ -18,31 +18,50 @@ export default function VotingPage() {
 	const [showModal, setShowModal] = useState(false);
 	const [visibleTasks, setVisibleTasks] = useState(0);
 	const [tasks, setTasks] = useState(config.tasks);
-	const [loading, setLoading] = useState(true);
+	const [loading, setLoading] = useState(false);
+	const [dataLoading, setDataLoading] = useState(true);
 
 	useEffect(() => {
 		// 异步初始化数据
 		const initializeData = async () => {
 			try {
-				// 记录访问
-				await recordVisit();
+				// 并行执行所有异步操作
+				const [
+					visitResult,
+					currentStats,
+					warning,
+					waitTime,
+					lastVote
+				] = await Promise.allSettled([
+					recordVisit(),
+					getHourlyStats(),
+					shouldShowWarning(),
+					shouldWait(),
+					getLastVoteTime()
+				]);
 
-				// 获取统计数据
-				const currentStats = await getHourlyStats();
-				setStats(currentStats);
+				// 更新统计数据
+				if (currentStats.status === 'fulfilled') {
+					setStats(currentStats.value);
+				}
 
-				// 检查是否需要显示警告
-				const warning = await shouldShowWarning();
-				const waitTime = await shouldWait();
-				const lastVote = await getLastVoteTime();
-				
-				setShowWarning(warning);
-				setShouldWaitTime(waitTime);
-				setLastVoteTime(lastVote);
+				// 更新警告状态
+				if (warning.status === 'fulfilled') {
+					setShowWarning(warning.value);
+				}
+
+				if (waitTime.status === 'fulfilled') {
+					setShouldWaitTime(waitTime.value);
+				}
+
+				if (lastVote.status === 'fulfilled') {
+					setLastVoteTime(lastVote.value);
+				}
+
 			} catch (error) {
 				console.error('初始化数据失败:', error);
 			} finally {
-				setLoading(false);
+				setDataLoading(false);
 			}
 		};
 
@@ -175,24 +194,52 @@ export default function VotingPage() {
 					<div className='bg-gray-50 border border-gray-200 p-6 sm:p-8 max-w-md mx-auto'>
 						<div className='grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 text-center'>
 							<div>
-								<div className='text-xl sm:text-2xl font-light text-gray-900 mb-1'>{stats.visits}</div>
+								<div className='text-xl sm:text-2xl font-light text-gray-900 mb-1'>
+									{dataLoading ? (
+										<div className='h-8 w-8 bg-gray-200 rounded animate-pulse mx-auto'></div>
+									) : (
+										stats.visits
+									)}
+								</div>
 								<div className='text-xs text-gray-500'>本小时访问</div>
 							</div>
 							<div>
-								<div className='text-xl sm:text-2xl font-light text-gray-900 mb-1'>{stats.votes}</div>
+								<div className='text-xl sm:text-2xl font-light text-gray-900 mb-1'>
+									{dataLoading ? (
+										<div className='h-8 w-8 bg-gray-200 rounded animate-pulse mx-auto'></div>
+									) : (
+										stats.votes
+									)}
+								</div>
 								<div className='text-xs text-gray-500'>本小时投票</div>
 							</div>
 							<div>
-								<div className='text-xl sm:text-2xl font-light text-gray-900 mb-1'>{stats.totalVisits}</div>
+								<div className='text-xl sm:text-2xl font-light text-gray-900 mb-1'>
+									{dataLoading ? (
+										<div className='h-8 w-8 bg-gray-200 rounded animate-pulse mx-auto'></div>
+									) : (
+										stats.totalVisits
+									)}
+								</div>
 								<div className='text-xs text-gray-500'>累计访问</div>
 							</div>
 							<div>
-								<div className='text-xl sm:text-2xl font-light text-gray-900 mb-1'>{stats.totalVotes}</div>
+								<div className='text-xl sm:text-2xl font-light text-gray-900 mb-1'>
+									{dataLoading ? (
+										<div className='h-8 w-8 bg-gray-200 rounded animate-pulse mx-auto'></div>
+									) : (
+										stats.totalVotes
+									)}
+								</div>
 								<div className='text-xs text-gray-500'>累计投票</div>
 							</div>
 						</div>
 						<div className='mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-gray-200 text-xs text-gray-500'>
-							<p>上次投票: {formatTime(lastVoteTime)}</p>
+							<p>上次投票: {dataLoading ? (
+								<span className='inline-block h-3 w-20 bg-gray-200 rounded animate-pulse'></span>
+							) : (
+								formatTime(lastVoteTime)
+							)}</p>
 						</div>
 					</div>
 				</div>
