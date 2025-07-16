@@ -81,6 +81,7 @@ export default function VotingPage({ initialStats = null }) {
 		// 自动复制产品名称
 		try {
 			await navigator.clipboard.writeText(config.product.name);
+
 		} catch (error) {
 			console.error('复制失败:', error);
 		}
@@ -94,7 +95,7 @@ export default function VotingPage({ initialStats = null }) {
 
 			// 使用noreferrer和noopener来隐藏来源
 			const link = document.createElement('a');
-			link.href = config.product.productHuntUrl;
+			link.href = config.product.productHuntUrl || 'https://www.producthunt.com';
 			link.target = '_blank';
 			link.rel = 'noreferrer noopener';
 			document.body.appendChild(link);
