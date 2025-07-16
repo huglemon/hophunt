@@ -1,5 +1,5 @@
 import VotingPage from '@/components/VotingPage';
-import { getStatsFromDB, cleanupExpiredData } from '@/lib/db';
+import { getStatsFromDB } from '@/lib/db';
 import { config } from '@/lib/config';
 
 // 启用 ISR，每30秒重新生成页面
@@ -21,13 +21,10 @@ export async function generateMetadata() {
 // 服务端获取初始数据
 async function getInitialStats() {
   try {
-    // 并行执行清理和获取数据
-    const [cleanupResult, dbStats] = await Promise.allSettled([
-      cleanupExpiredData(),
-      getStatsFromDB()
-    ]);
+    // 获取数据库统计数据
+    const dbStats = await getStatsFromDB();
     
-    if (dbStats.status !== 'fulfilled' || !dbStats.value) {
+    if (!dbStats) {
       return {
         visits: 0,
         votes: 0,
@@ -41,7 +38,7 @@ async function getInitialStats() {
     const now = Date.now();
     const hourAgo = now - 60 * 60 * 1000;
     
-    const statsData = dbStats.value;
+    const statsData = dbStats;
     const recentVisits = statsData.visits.filter(visit => {
       const timestamp = typeof visit === 'string' ? parseInt(visit) : visit;
       return timestamp > hourAgo;
