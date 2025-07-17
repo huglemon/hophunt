@@ -1,6 +1,5 @@
 import { config } from '@/lib/config';
 import Link from 'next/link';
-import Image from 'next/image';
 
 export default function Header() {
 	return (
@@ -8,12 +7,15 @@ export default function Header() {
 			<div className='max-w-6xl mx-auto flex justify-between items-center'>
 				<div className='text-xs sm:text-sm text-gray-600 truncate max-w-[60%] flex items-center gap-2'>
 					<Link href='/' className='flex items-center gap-2 hover:text-gray-800 transition-colors'>
-						<Image
+						<img
 							src={config.product.logoUrl}
 							alt={`${config.product.name} Logo`}
-							width={24}
-							height={24}
 							className='w-5 h-5 sm:w-6 sm:h-6 object-contain'
+							loading='lazy'
+							style={{
+								width: '24px',
+								height: '24px',
+							}}
 						/>
 						<span>{config.product.name}</span>
 					</Link>
