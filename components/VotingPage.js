@@ -93,8 +93,8 @@ export default function VotingPage({ initialStats = null }) {
 		try {
 			setVotingInProgress(true);
 			
-			// 获取ProductHunt URL
-			const productHuntUrl = 'https://www.producthunt.com/';
+			// 获取ProductHunt URL - 使用配置中的具体产品URL
+			const productHuntUrl = config.product.productHuntUrl;
 			console.log('准备跳转到:', productHuntUrl);
 			console.log('完整配置:', config.product);
 
