@@ -190,6 +190,7 @@ pnpm dev
    **📝 编辑说明：**
    - 将 `你的产品名称` 替换为实际的产品名称
    - 将 `你的产品描述` 替换为实际的产品描述
+   - 将 `https://your-product-website.com` 替换为你的产品官网或GitHub仓库链接
    - 将 `your-product` 替换为你的 ProductHunt 产品页面链接
 
 3. **添加数据库**（推荐，实现真正的统计功能）
@@ -215,6 +216,7 @@ pnpm dev
 ```bash
 NEXT_PUBLIC_PRODUCT_NAME=你的产品名称
 NEXT_PUBLIC_PRODUCT_DESCRIPTION=你的产品描述
+NEXT_PUBLIC_PRODUCT_URL=https://your-product-website.com
 NEXT_PUBLIC_PRODUCTHUNT_URL=https://www.producthunt.com/posts/your-product
 ```
 
@@ -230,6 +232,7 @@ NEXT_PUBLIC_THANKYOU_TITLE=谢谢你的支持！
 NEXT_PUBLIC_THANKYOU_MESSAGE=你的每一票都很珍贵！
 NEXT_PUBLIC_COUPON_CODE=VOTE2024
 NEXT_PUBLIC_COUPON_DISCOUNT=8折优惠
+NEXT_PUBLIC_COUPON_IMAGE=/coupon.png
 ```
 
 #### ⚙️ 高级配置（可选）
@@ -311,6 +314,10 @@ NEXT_PUBLIC_WARNING_THRESHOLD=5
 | `NEXT_PUBLIC_PRODUCT_URL`         | 产品主页链接     | 'https://github.com/huglemon/hophunt'      |
 | `NEXT_PUBLIC_PRODUCTHUNT_URL`     | ProductHunt 链接 | 'https://www.producthunt.com'              |
 
+**重要提示：**
+- `NEXT_PUBLIC_PRODUCT_URL` 是你的产品官网或GitHub仓库链接
+- `NEXT_PUBLIC_PRODUCTHUNT_URL` 是你的具体ProductHunt产品页面链接
+
 #### 首页文本配置
 
 | 环境变量                        | 说明       | 默认值                  |
@@ -345,6 +352,11 @@ NEXT_PUBLIC_WARNING_THRESHOLD=5
 | `NEXT_PUBLIC_COUPON_CODE`      | 优惠券代码     | 'VOTE2024'             |
 | `NEXT_PUBLIC_COUPON_DISCOUNT`  | 优惠券折扣     | '8 折优惠'             |
 | `NEXT_PUBLIC_COUPON_IMAGE`     | 优惠券图片路径 | '/coupon.png'          |
+
+**优惠券图片说明：**
+- `NEXT_PUBLIC_COUPON_IMAGE` 可以是优惠券图片路径，也可以是微信群二维码等
+- 如果设置为空字符串，则只显示优惠码文本
+- 支持本地图片（如 `/coupon.png`）或外部图片链接（如 `https://example.com/coupon.png`）
 
 ## 🔄 获取项目更新
 
