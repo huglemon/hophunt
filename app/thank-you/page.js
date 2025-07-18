@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import { useState } from 'react';
@@ -36,7 +37,11 @@ export default function ThankYouPage() {
 					</div>
 
 					{/* 优惠券卡片 */}
-					<div className='bg-gray-50 border border-gray-200 p-6 sm:p-8 mx-auto mb-8 sm:mb-12 max-w-3xl'>
+					<div
+						className={`bg-gray-50 border border-gray-200 p-6 sm:p-8 mx-auto mb-8 sm:mb-12 ${
+							!config.thankYou.couponImage && !config.thankYou.couponCode && 'hidden'
+						}`}
+					>
 						<h2 className='text-base sm:text-lg font-medium text-gray-900 mb-4 text-center'>小小心意</h2>
 
 						<p className='text-gray-600 mb-6 text-sm text-center'>感谢你的支持！这是给你的小礼物：</p>
@@ -78,9 +83,7 @@ export default function ThankYouPage() {
 							) : (
 								/* 优惠码 */
 								<div className='w-full max-w-md text-center'>
-									<div className='text-xl sm:text-2xl font-light text-gray-900 mb-6'>
-										{config.thankYou.couponDiscount}
-									</div>
+									<div className='text-xl sm:text-2xl font-light text-gray-900 mb-6'>{config.thankYou.couponDiscount}</div>
 									<div className='flex items-center justify-center gap-3 mb-4'>
 										<span className='text-base sm:text-lg font-mono text-gray-900 bg-white border border-gray-300 px-4 py-2.5 rounded'>
 											{config.thankYou.couponCode}
